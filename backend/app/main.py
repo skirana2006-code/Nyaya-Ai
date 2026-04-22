@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from app.routes import upload
+from app.routes import upload, query
 
-#title 
-app = FastAPI(title="NyayaAI Backend")
+app = FastAPI()
 
-# Register routes
 app.include_router(upload.router)
+app.include_router(query.router)
