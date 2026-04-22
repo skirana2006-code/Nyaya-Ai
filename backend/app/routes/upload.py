@@ -1,11 +1,12 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from app.services.pdf_service import extract_text_from_pdf
-from app.services.chunk_service import chunk_text
-
+from backend.app.services.vector_db_service import chunk_text
+from app.services.embedding_service import generate_embeddings
+from app.services.vector_db_service import chunk_text
 router = APIRouter()
 
 @router.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...)):    
     """
     Upload a PDF file, extract text, clean it,
     chunk it, and return chunks.
@@ -29,5 +30,5 @@ async def upload_pdf(file: UploadFile = File(...)):
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) 
 
