@@ -1,19 +1,21 @@
-def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50):
+import chromadb
+
+# Initialize Chroma client
+client = chromadb.Client()
+
+# Create collection
+collection = client.get_or_create_collection(name="legal_docs")
+
+
+def store_embeddings(chunks, embeddings):
     """
-    Splits text into overlapping chunks.
+    Store text chunks and their embeddings in ChromaDB
     """
 
-    chunks = []
-    start = 0
-    text_length = len(text)
+    ids = [str(i) for i in range(len(chunks))]
 
-    while start < text_length:
-        end = start + chunk_size
-
-        chunk = text[start:end]
-        chunks.append(chunk)
-
-        # Move start forward with overlap
-        start += chunk_size - overlap
-
-    return chunks  
+    collection.add(
+        documents=chunks,
+        embeddings=embeddings,
+        ids=ids
+    )
