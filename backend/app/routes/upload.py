@@ -30,7 +30,6 @@ async def upload_pdf(file: UploadFile = File(...)):
         # Step 4: Store in DB
         store_embeddings(chunks, embeddings)
 
-        # Step 5: Return response
         return {
             "message": "stored successfully",
             "total_chunks": len(chunks)
