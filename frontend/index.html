@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyaya.AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #f5f3ee; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem; }
+    .root { max-width: 920px; margin: 0 auto; }
+    .header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #1a2744; }
+    .logo span { color: #B8860B; }
+    .tagline { font-size: 12px; color: #888; letter-spacing: 0.08em; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; align-items: start; }
+    .panel { background: #fff; border: 1px solid #e0ddd6; border-radius: 12px; padding: 1.25rem; }
+    .panel-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+    .upload-zone { border: 1.5px dashed #ccc; border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .upload-zone:hover, .upload-zone.active { border-color: #B8860B; background: #fdf9f0; }
+    .upload-zone svg { width: 32px; height: 32px; margin: 0 auto 8px; display: block; color: #aaa; }
+    .upload-text { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .upload-sub { font-size: 11px; color: #aaa; }
+    .upload-btn { display: block; width: 100%; margin-top: 1rem; padding: 9px; background: #1a2744; color: #e8d5a3; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+    .upload-btn:hover:not(:disabled) { background: #243560; }
+    .upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .file-badge { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f5f3ee; border-radius: 8px; margin-top: 10px; }
+    .file-badge svg { flex-shrink: 0; color: #888; }
+    .file-badge-name { font-size: 12px; color: #333; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status-ok { font-size: 11px; font-weight: 500; color: #2e7d32; }
+    .status-err { font-size: 11px; font-weight: 500; color: #c62828; }
+    .status-loading { font-size: 11px; font-weight: 500; color: #B8860B; }
+    .chat-area { display: flex; flex-direction: column; gap: 1rem; }
+    .messages-box { min-height: 360px; max-height: 440px; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding: 0.25rem 0; }
+    .msg { padding: 0.875rem 1rem; border-radius: 10px; font-size: 14px; line-height: 1.7; }
+    .msg-user { background: #1a2744; color: #e8d5a3; align-self: flex-end; max-width: 85%; border-radius: 12px 12px 2px 12px; }
+    .msg-ai { background: #f5f3ee; color: #1a1a1a; align-self: flex-start; max-width: 90%; border-radius: 2px 12px 12px 12px; border-left: 3px solid #B8860B; }
+    .msg-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; opacity: 0.55; }
+    .msg-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: #aaa; text-align: center; gap: 8px; }
+    .msg-empty-title { font-family: 'Playfair Display', serif; font-size: 17px; color: #888; }
+    .msg-empty-sub { font-size: 12px; }
+    .query-row { display: flex; gap: 8px; align-items: flex-end; }
+    .query-input { flex: 1; padding: 10px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #1a1a1a; resize: none; outline: none; transition: border-color 0.2s; }
+    .query-input:focus { border-color: #B8860B; }
+    .query-input:disabled { background: #f9f9f9; }
+    .send-btn { padding: 10px 20px; background: #1a2744; color: #e8d5a3; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .send-btn:hover:not(:disabled) { background: #243560; }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .thinking { display: flex; gap: 5px; align-items: center; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #B8860B; animation: bounce 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="root">
+    <div class="header">
+      <div class="logo">Nyaya<span>.</span>AI</div>
+      <div class="tagline">Legal Document Intelligence</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <p class="panel-title">Document</p>
+        <div class="upload-zone" id="dropZone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          <p class="upload-text">Drop PDF here</p>
+          <p class="upload-sub">or click to browse</p>
+          <input type="file" id="fileInput" accept=".pdf" style="display:none">
+        </div>
+        <div id="fileBadge" style="display:none" class="file-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span class="file-badge-name" id="fileName">document.pdf</span>
+          <span id="fileStatus"></span>
+        </div>
+        <button class="upload-btn" id="uploadBtn" disabled>Upload &amp; Process</button>
+      </div>
+
+      <div class="panel chat-area">
+        <p class="panel-title">Ask the Document</p>
+        <div class="messages-box" id="messagesBox">
+          <div class="msg-empty">
+            <div class="msg-empty-title">Upload a document to begin</div>
+            <div class="msg-empty-sub">Ask anything about its contents</div>
+          </div>
+        </div>
+        <div class="query-row">
+          <textarea class="query-input" id="queryInput" rows="2" placeholder="Ask a legal question..." disabled></textarea>
+          <button class="send-btn" id="sendBtn" disabled>Ask →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://127.0.0.1:8000';
+    let selectedFile = null;
+    let uploaded = false;
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileBadge = document.getElementById('fileBadge');
+    const fileName = document.getElementById('fileName');
+    const fileStatus = document.getElementById('fileStatus');
+    const messagesBox = document.getElementById('messagesBox');
+    const queryInput = document.getElementById('queryInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
+    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('active'); handleFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      if (!file || file.type !== 'application/pdf') return;
+      selectedFile = file;
+      fileName.textContent = file.name;
+      fileStatus.textContent = 'Ready';
+      fileStatus.className = 'status-ok';
+      fileBadge.style.display = 'flex';
+      uploadBtn.disabled = false;
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Processing...';
+      fileStatus.textContent = 'Uploading...';
+      fileStatus.className = 'status-loading';
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      try {
+        const res = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok) {
+          fileStatus.textContent = '✓ ' + data.total_chunks + ' chunks';
+          fileStatus.className = 'status-ok';
+          uploadBtn.textContent = 'Uploaded ✓';
+          uploaded = true;
+          queryInput.disabled = false;
+          sendBtn.disabled = false;
+          messagesBox.innerHTML = '';
+          addMessage('ai', 'Document processed — ' + data.total_chunks + ' sections indexed. What would you like to know?');
+        } else {
+          throw new Error(data.detail || 'Upload failed');
+        }
+      } catch (err) {
+        fileStatus.textContent = 'Error';
+        fileStatus.className = 'status-err';
+        uploadBtn.textContent = 'Retry';
+        uploadBtn.disabled = false;
+        addMessage('ai', 'Upload error: ' + err.message);
+      }
+    });
+
+    queryInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuery(); } });
+    sendBtn.addEventListener('click', sendQuery);
+
+    async function sendQuery() {
+      const q = queryInput.value.trim();
+      if (!q || !uploaded) return;
+      queryInput.value = '';
+      sendBtn.disabled = true;
+      queryInput.disabled = true;
+      addMessage('user', q);
+      const thinkingId = addThinking();
+      try {
+        const res = await fetch(`${API}/query?query=${encodeURIComponent(q)}`, { method: 'POST' });
+        const data = await res.json();
+        removeThinking(thinkingId);
+        addMessage('ai', data.answer || 'No answer returned.');
+      } catch (err) {
+        removeThinking(thinkingId);
+        addMessage('ai', 'Error: ' + err.message);
+      } finally {
+        sendBtn.disabled = false;
+        queryInput.disabled = false;
+        queryInput.focus();
+      }
+    }
+
+    function addMessage(type, text) {
+      const div = document.createElement('div');
+      div.className = 'msg msg-' + type;
+      const label = document.createElement('div');
+      label.className = 'msg-label';
+      label.textContent = type === 'user' ? 'You' : 'Nyaya AI';
+      div.appendChild(label);
+      const content = document.createElement('div');
+      content.textContent = text;
+      div.appendChild(content);
+      messagesBox.appendChild(div);
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    function addThinking() {
+      const id = Date.now();
+      const div = document.createElement('div');
+      div.className = 'msg msg-ai';
+      div.id = 'thinking-' + id;
+      div.innerHTML = '<div class="msg-label">Nyaya AI</div><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+      messagesBox.appendChild(div);
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+      return id;
+    }
+
+    function removeThinking(id) {
+      const el = document.getElementById('thinking-' + id);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>
